@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madar — مدار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=DM+Sans:wght@300;400;500&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080808;
+  --surface: #0F0F0F;
+  --card: #131313;
+  --border: #1C1C1C;
+  --border-light: #252525;
+  --text: #EDE9E3;
+  --text-dim: #5A5A5A;
+  --text-mid: #888;
+  --accent: #D4A853;
+  --accent-dim: rgba(212,168,83,0.12);
+  --accent-glow: rgba(212,168,83,0.06);
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-arabic: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] {
+  --font-display: 'Cairo', sans-serif;
+  --font-body: 'Cairo', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+}
+nav.scrolled {
+  border-bottom-color: var(--border);
+  background: rgba(8,8,8,0.85);
+  backdrop-filter: blur(16px);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo .orbit-dot {
+  width: 6px; height: 6px;
+  background: var(--accent); border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-mid); font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-right {
+  display: flex; align-items: center; gap: 16px;
+}
+.lang-toggle {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border-light); border-radius: 4px; overflow: hidden;
+}
+.lang-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 6px 12px;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-dim);
+  transition: background 0.2s, color 0.2s;
+  font-family: var(--font-body);
+}
+.lang-btn.active { background: var(--accent); color: #000; font-weight: 600; }
+.nav-cta {
+  background: var(--accent); color: #000;
+  border: none; cursor: pointer;
+  padding: 8px 20px; border-radius: 3px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  padding: 0 0 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background grid */
+.hero-grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 70% 60% at 60% 50%, black 30%, transparent 80%);
+  opacity: 0.35;
+}
+
+/* Orbit SVG animation */
+.hero-orbit {
+  position: absolute;
+  right: -80px; top: 50%;
+  transform: translateY(-52%);
+  width: 680px; height: 680px;
+  pointer-events: none;
+}
+.orbit-ring {
+  fill: none;
+  stroke: var(--border-light);
+  stroke-width: 1;
+  transform-origin: center;
+}
+.orbit-ring-1 { animation: spinOrbit 18s linear infinite; }
+.orbit-ring-2 { animation: spinOrbit 28s linear infinite reverse; }
+.orbit-ring-3 { animation: spinOrbit 12s linear infinite; }
+.orbit-accent {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 60 400;
+  animation: spinOrbit 8s linear infinite;
+}
+@keyframes spinOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.orbit-center {
+  fill: var(--accent);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Hero left content */
+.hero-left {
+  padding: 0 40px 0 40px;
+  padding-top: 140px;
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; gap: 0;
+}
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px;
+}
+.hero-eyebrow::before {
+  content: ''; display: block;
+  width: 30px; height: 1px; background: var(--accent);
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(80px, 11vw, 160px);
+  line-height: 0.88;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  position: relative;
+}
+.hero-name .arabic-name {
+  display: block;
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(44px, 6vw, 82px);
+  font-weight: 300;
+  color: var(--text-dim);
+  letter-spacing: 0;
+  line-height: 1.1;
+  margin-top: 8px;
+}
+.hero-desc {
+  margin-top: 36px;
+  max-width: 420px;
+  color: var(--text-mid);
+  font-size: 14px; line-height: 1.8;
+}
+[dir="rtl"] .hero-desc { font-family: var(--font-arabic); }
+.hero-actions {
+  margin-top: 44px;
+  display: flex; align-items: center; gap: 20px;
+}
+.btn-primary {
+  background: var(--accent); color: #000;
+  padding: 13px 32px; border-radius: 3px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+  font-family: var(--font-body);
+}
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-ghost {
+  color: var(--text-mid); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+  font-family: var(--font-body);
+}
+.btn-ghost:hover { color: var(--text); }
+.btn-ghost::after { content: '→'; transition: transform 0.2s; }
+.btn-ghost:hover::after { transform: translateX(4px); }
+[dir="rtl"] .btn-ghost::after { content: '←'; }
+[dir="rtl"] .btn-ghost:hover::after { transform: translateX(-4px); }
+
+/* Hero right — stats */
+.hero-right {
+  padding: 140px 40px 0;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  position: relative; z-index: 2;
+}
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border: 1px solid var(--border);
+  background: var(--border);
+  margin-top: auto;
+  margin-bottom: 0;
+  max-width: 360px;
+  margin-left: auto;
+}
+.stat-item {
+  background: var(--card);
+  padding: 24px 22px;
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 42px; font-weight: 900;
+  line-height: 1;
+  color: var(--text);
+}
+.stat-num span { color: var(--accent); }
+.stat-label {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); margin-top: 6px;
+}
+[dir="rtl"] .stat-label { font-family: var(--font-arabic); letter-spacing: 0; }
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--text-dim); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  animation: fadeFloat 2.5s ease-in-out infinite;
+}
+@keyframes fadeFloat {
+  0%,100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 0.9; transform: translateX(-50%) translateY(-6px); }
+}
+.scroll-hint-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+}
+
+/* ── SECTION BASE ── */
+section { position: relative; }
+.section-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 40px;
+}
+.section-label {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 56px;
+}
+.section-label::before {
+  content: ''; width: 24px; height: 1px; background: var(--text-dim);
+}
+[dir="rtl"] .section-label { font-family: var(--font-arabic); letter-spacing: 0; }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0; overflow: hidden;
+  background: var(--surface);
+}
+.ticker-track {
+  display: flex; gap: 0;
+  animation: ticker 22s linear infinite;
+  white-space: nowrap;
+}
+.ticker-item {
+  display: flex; align-items: center; gap: 24px;
+  padding: 0 32px;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ticker-item .dot { color: var(--accent); font-size: 8px; }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+[dir="rtl"] .ticker-track { animation: tickerRTL 22s linear infinite; }
+@keyframes tickerRTL {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+
+/* ── SERVICES ── */
+#services { padding: 120px 0; }
+.services-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 70px;
+}
+.services-title {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900; line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+[dir="rtl"] .services-title { font-size: clamp(36px, 4.5vw, 58px); }
+.services-subtitle {
+  max-width: 260px; text-align: right;
+  color: var(--text-dim); font-size: 13px; line-height: 1.7;
+}
+[dir="rtl"] .services-subtitle { text-align: left; font-family: var(--font-arabic); }
+
+.services-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.service-card {
+  background: var(--card);
+  padding: 40px 32px 36px;
+  position: relative; overflow: hidden;
+  transition: background 0.3s;
+  cursor: default;
+}
+.service-card::before {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+[dir="rtl"] .service-card::before { transform-origin: right; }
+.service-card:hover::before { transform: scaleX(1); }
+.service-card:hover { background: #161616; }
+
+.service-num {
+  font-family: var(--font-display);
+  font-size: 11px; letter-spacing: 0.2em;
+  color: var(--accent); margin-bottom: 32px;
+}
+.service-icon {
+  width: 44px; height: 44px; margin-bottom: 24px;
+  color: var(--text-dim);
+}
+.service-icon svg { width: 100%; height: 100%; }
+.service-name {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; line-height: 1.1;
+  margin-bottom: 6px;
+}
+.service-name-ar {
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px; color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.service-desc {
+  font-size: 13px; color: var(--text-dim); line-height: 1.8;
+}
+[dir="rtl"] .service-desc, [dir="rtl"] .service-name-ar { font-family: var(--font-arabic); }
+.service-tags {
+  margin-top: 24px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.stag {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 9px; border: 1px solid var(--border-light);
+  border-radius: 2px; color: var(--text-dim);
+}
+
+/* ── ABOUT ── */
+#about {
+  padding: 120px 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.about-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: center;
+}
+.about-left .big-quote {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+[dir="rtl"] .about-left .big-quote { font-family: 'Cairo', sans-serif; }
+.about-left .big-quote em {
+  color: var(--accent); font-style: normal;
+}
+.about-right p {
+  color: var(--text-dim); font-size: 14px; line-height: 1.9;
+  margin-bottom: 20px;
+}
+[dir="rtl"] .about-right p { font-family: var(--font-arabic); }
+.about-line {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  margin-top: 40px;
+}
+.about-fact {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 20px;
+}
+.about-fact-label {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+[dir="rtl"] .about-fact-label { font-family: var(--font-arabic); letter-spacing: 0; }
+.about-fact-value {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; color: var(--text);
+}
+
+/* ── PORTFOLIO ── */
+#portfolio { padding: 120px 0; }
+.portfolio-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 56px;
+}
+.portfolio-title {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 900; text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.filter-tabs {
+  display: flex; gap: 2px;
+}
+.filter-tab {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer;
+  padding: 7px 16px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  border-radius: 2px;
+}
+.filter-tab:hover, .filter-tab.active {
+  background: var(--accent); color: #000;
+  border-color: var(--accent);
+}
+
+.projects-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.project-card {
+  background: var(--card);
+  position: relative; overflow: hidden;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.project-thumb {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 80px; font-weight: 900;
+  color: var(--border-light);
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  position: relative; overflow: hidden;
+  transition: color 0.3s;
+}
+.project-thumb .thumb-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--card) 0%, var(--surface) 100%);
+  transition: opacity 0.3s;
+}
+.project-thumb .thumb-letter {
+  position: relative; z-index: 1;
+}
+.project-overlay {
+  position: absolute; inset: 0;
+  background: rgba(8,8,8,0.88);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 28px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.project-card:hover .project-overlay { opacity: 1; }
+.project-card:hover .project-thumb { color: var(--border); }
+.project-cat {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px;
+}
+[dir="rtl"] .project-cat { font-family: var(--font-arabic); letter-spacing: 0; }
+.project-name {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.02em; line-height: 1.1;
+  margin-bottom: 10px;
+}
+[dir="rtl"] .project-name { font-family: 'Cairo', sans-serif; }
+.project-brief {
+  font-size: 12px; color: var(--text-mid); line-height: 1.6;
+}
+[dir="rtl"] .project-brief { font-family: var(--font-arabic); }
+.project-arrow {
+  margin-top: 18px; width: 32px; height: 32px;
+  border: 1px solid var(--border-light); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.project-card:hover .project-arrow { background: var(--accent-dim); border-color: var(--accent); }
+
+/* Add project card */
+.project-card.add-card {
+  border: 1px dashed var(--border-light);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  cursor: pointer;
+  aspect-ratio: 4/3;
+  transition: border-color 0.3s, background 0.3s;
+}
+.project-card.add-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.add-icon {
+  width: 40px; height: 40px; border: 1px solid var(--border-light);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim); font-size: 20px; font-weight: 300;
+  transition: border-color 0.3s, color 0.3s;
+}
+.project-card.add-card:hover .add-icon { border-color: var(--accent); color: var(--accent); }
+.add-label {
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color 0.3s;
+}
+.project-card.add-card:hover .add-label { color: var(--accent); }
+
+/* ── CONTACT ── */
+#contact {
+  padding: 120px 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.contact-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: start;
+}
+.contact-left .contact-headline {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 5.5vw, 72px);
+  font-weight: 900; text-transform: uppercase;
+  letter-spacing: -0.01em; line-height: 0.92;
+  margin-bottom: 32px;
+}
+[dir="rtl"] .contact-left .contact-headline { font-family: 'Cairo', sans-serif; }
+.contact-left .contact-headline em {
+  color: var(--accent); font-style: normal; display: block;
+}
+.contact-info { display: flex; flex-direction: column; gap: 16px; }
+.contact-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+}
+.contact-row-icon {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border-light); border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 15px; flex-shrink: 0;
+}
+.contact-row-label {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 3px;
+}
+[dir="rtl"] .contact-row-label { font-family: var(--font-arabic); letter-spacing: 0; }
+.contact-row-value {
+  font-size: 14px; color: var(--text);
+}
+
+/* Contact form */
+.contact-form { display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { display: flex; flex-direction: column; gap: 7px; }
+.form-field label {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+[dir="rtl"] .form-field label { font-family: var(--font-arabic); letter-spacing: 0; }
+.form-field input, .form-field select, .form-field textarea {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font-body);
+  font-size: 13px; padding: 12px 14px;
+  border-radius: 3px; outline: none;
+  transition: border-color 0.2s;
+}
+[dir="rtl"] .form-field input, [dir="rtl"] .form-field select, [dir="rtl"] .form-field textarea {
+  font-family: var(--font-arabic);
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  border-color: var(--accent);
+}
+.form-field select { appearance: none; cursor: pointer; }
+.form-field select option { background: #1a1a1a; }
+.form-field textarea { resize: vertical; min-height: 100px; }
+.form-submit {
+  background: var(--accent); color: #000;
+  border: none; cursor: pointer;
+  padding: 14px 32px; border-radius: 3px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: var(--font-body);
+  align-self: flex-start;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.form-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+[dir="rtl"] .form-submit { font-family: var(--font-arabic); letter-spacing: 0; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.footer-brand .accent { color: var(--accent); }
+.footer-copy {
+  font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em;
+}
+[dir="rtl"] .footer-copy { font-family: var(--font-arabic); letter-spacing: 0; }
+.footer-links {
+  display: flex; gap: 24px; list-style: none;
+}
+.footer-links a {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  #hero { grid-template-columns: 1fr; min-height: auto; padding: 120px 0 60px; }
+  .hero-right { display: none; }
+  .hero-orbit { width: 360px; height: 360px; right: -100px; opacity: 0.4; }
+  .hero-left { padding: 0 24px; }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .projects-grid { grid-template-columns: 1fr 1fr; }
+  .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+  .section-inner { padding: 0 24px; }
+  .services-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .services-subtitle { text-align: left; max-width: 100%; }
+  [dir="rtl"] .services-subtitle { text-align: right; }
+  footer { flex-direction: column; gap: 20px; text-align: center; }
+}
+@media (max-width: 600px) {
+  .services-grid { grid-template-columns: 1fr; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .hero-name { font-size: 72px; }
+}
+
+/* ── TRANSITIONS / ENTRANCE ── */
+.fade-up {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* RTL adjustments */
+[dir="rtl"] .nav-links { flex-direction: row-reverse; }
+[dir="rtl"] .hero-eyebrow::before { order: 2; }
+[dir="rtl"] .section-label::before { order: 2; }
+[dir="rtl"] .hero-actions { flex-direction: row-reverse; }
+[dir="rtl"] .services-subtitle { text-align: left; }
+[dir="rtl"] .filter-tabs { flex-direction: row-reverse; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#" class="nav-logo">
+    <span class="orbit-dot"></span>
+    Madar
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services" data-en="Services" data-ar="الخدمات">Services</a></li>
+    <li><a href="#about" data-en="About" data-ar="عنّا">About</a></li>
+    <li><a href="#portfolio" data-en="Work" data-ar="أعمالنا">Work</a></li>
+    <li><a href="#contact" data-en="Contact" data-ar="تواصل">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ar')">ع</button>
+    </div>
+    <button class="nav-cta" data-en="Get Started" data-ar="ابدأ الآن" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get Started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+
+  <!-- Orbit SVG -->
+  <svg class="hero-orbit" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(340,340)">
+      <ellipse class="orbit-ring orbit-ring-1" rx="300" ry="120" transform="rotate(-20)"/>
+      <ellipse class="orbit-ring orbit-ring-2" rx="240" ry="240"/>
+      <ellipse class="orbit-ring orbit-ring-3" rx="180" ry="72" transform="rotate(50)"/>
+      <ellipse class="orbit-accent" rx="260" ry="104" transform="rotate(15)"/>
+      <circle class="orbit-center" r="5"/>
+      <!-- Small orbiting dots -->
+      <circle r="3" fill="rgba(212,168,83,0.5)">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="260;260" dur="8s"/>
+      </circle>
+    </g>
+  </svg>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow" data-en="Digital Agency · GCC" data-ar="وكالة رقمية · دول الخليج">Digital Agency · GCC</div>
+    <h1 class="hero-name">
+      MADAR
+      <span class="arabic-name">مدار</span>
+    </h1>
+    <p class="hero-desc" data-en="We orbit around your vision — delivering marketing, technology, and digital strategy that puts your brand at the center of the conversation." data-ar="نحن ندور حول رؤيتك — نقدم التسويق والتكنولوجيا والاستراتيجية الرقمية التي تضع علامتك التجارية في مركز الحوار.">
+      We orbit around your vision — delivering marketing, technology, and digital strategy that puts your brand at the center of the conversation.
+    </p>
+    <div class="hero-actions">
+      <a href="#portfolio" class="btn-primary" data-en="View Our Work" data-ar="شاهد أعمالنا">View Our Work</a>
+      <a href="#services" class="btn-ghost" data-en="What We Do" data-ar="ماذا نفعل">What We Do</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">40<span>+</span></div>
+        <div class="stat-label" data-en="Projects Delivered" data-ar="مشروع منجز">Projects Delivered</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6<span>+</span></div>
+        <div class="stat-label" data-en="GCC Countries" data-ar="دول خليجية">GCC Countries</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4</div>
+        <div class="stat-label" data-en="Core Services" data-ar="خدمة أساسية">Core Services</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label" data-en="Client Retention" data-ar="معدل الاحتفاظ">Client Retention</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span data-en="Scroll" data-ar="مرر">Scroll</span>
+    <div class="scroll-hint-line"></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <div class="ticker-item"><span>Marketing</span><span class="dot">◆</span><span>التسويق</span></div>
+    <div class="ticker-item"><span>IT Services</span><span class="dot">◆</span><span>خدمات تقنية المعلومات</span></div>
+    <div class="ticker-item"><span>Social Media</span><span class="dot">◆</span><span>إدارة السوشيال ميديا</span></div>
+    <div class="ticker-item"><span>Development</span><span class="dot">◆</span><span>البرمجة والتطوير</span></div>
+    <div class="ticker-item"><span>GCC Region</span><span class="dot">◆</span><span>منطقة الخليج</span></div>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item"><span>Marketing</span><span class="dot">◆</span><span>التسويق</span></div>
+    <div class="ticker-item"><span>IT Services</span><span class="dot">◆</span><span>خدمات تقنية المعلومات</span></div>
+    <div class="ticker-item"><span>Social Media</span><span class="dot">◆</span><span>إدارة السوشيال ميديا</span></div>
+    <div class="ticker-item"><span>Development</span><span class="dot">◆</span><span>البرمجة والتطوير</span></div>
+    <div class="ticker-item"><span>GCC Region</span><span class="dot">◆</span><span>منطقة الخليج</span></div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-label" data-en="01 — What We Do" data-ar="01 — ماذا نقدم">01 — What We Do</div>
+
+    <div class="services-header">
+      <h2 class="services-title fade-up" data-en="OUR<br>SERVICES" data-ar="خدماتنا">OUR<br>SERVICES</h2>
+      <p class="services-subtitle fade-up" data-en="Four disciplines. One orbit. Every service built to amplify your brand across the Gulf." data-ar="أربع تخصصات. مدار واحد. كل خدمة مصممة لتضخيم علامتك التجارية في الخليج.">
+        Four disciplines. One orbit. Every service built to amplify your brand across the Gulf.
+      </p>
+    </div>
+
+    <div class="services-grid">
+      <!-- Marketing -->
+      <div class="service-card fade-up">
+        <div class="service-num">01</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="22" cy="22" r="18"/>
+            <path d="M14 22 Q18 14 22 22 Q26 30 30 22"/>
+            <circle cx="22" cy="22" r="3" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="service-name" data-en="Marketing" data-ar="التسويق">Marketing</div>
+        <div class="service-name-ar" data-en="التسويق" data-ar="Marketing">التسويق</div>
+        <p class="service-desc" data-en="Brand strategy, campaign management, content creation, and growth marketing tailored for GCC audiences." data-ar="استراتيجية العلامة التجارية وإدارة الحملات وإنشاء المحتوى والتسويق المتنامي المصمم لجمهور الخليج.">Brand strategy, campaign management, content creation, and growth marketing tailored for GCC audiences.</p>
+        <div class="service-tags">
+          <span class="stag">Brand</span>
+          <span class="stag">SEO</span>
+          <span class="stag">Growth</span>
+        </div>
+      </div>
+
+      <!-- IT Services -->
+      <div class="service-card fade-up" style="transition-delay:.1s">
+        <div class="service-num">02</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="6" y="10" width="32" height="20" rx="2"/>
+            <path d="M16 34h12M22 30v4"/>
+            <path d="M14 17h4M14 21h8" stroke-linecap="round"/>
+            <rect x="26" y="16" width="8" height="8" rx="1"/>
+          </svg>
+        </div>
+        <div class="service-name" data-en="IT Services" data-ar="خدمات IT">IT Services</div>
+        <div class="service-name-ar" data-en="خدمات تقنية" data-ar="IT Services">خدمات تقنية</div>
+        <p class="service-desc" data-en="Infrastructure setup, cloud solutions, cybersecurity, system integration, and technical consulting." data-ar="إعداد البنية التحتية والحلول السحابية والأمن السيبراني وتكامل الأنظمة والاستشارات التقنية.">Infrastructure setup, cloud solutions, cybersecurity, system integration, and technical consulting.</p>
+        <div class="service-tags">
+          <span class="stag">Cloud</span>
+          <span class="stag">Security</span>
+          <span class="stag">Ops</span>
+        </div>
+      </div>
+
+      <!-- Social Media -->
+      <div class="service-card fade-up" style="transition-delay:.2s">
+        <div class="service-num">03</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="22" r="4"/>
+            <circle cx="32" cy="12" r="4"/>
+            <circle cx="32" cy="32" r="4"/>
+            <path d="M16 20l12-6M16 24l12 6"/>
+          </svg>
+        </div>
+        <div class="service-name" data-en="Social Media" data-ar="السوشيال ميديا">Social Media</div>
+        <div class="service-name-ar" data-en="إدارة المنصات" data-ar="Social Media">إدارة المنصات</div>
+        <p class="service-desc" data-en="Community management, content calendars, influencer coordination, analytics and paid social across all platforms." data-ar="إدارة المجتمع وتقويمات المحتوى وتنسيق المؤثرين والتحليلات والإعلانات المدفوعة عبر جميع المنصات.">Community management, content calendars, influencer coordination, analytics and paid social across all platforms.</p>
+        <div class="service-tags">
+          <span class="stag">Instagram</span>
+          <span class="stag">TikTok</span>
+          <span class="stag">Ads</span>
+        </div>
+      </div>
+
+      <!-- Dev -->
+      <div class="service-card fade-up" style="transition-delay:.3s">
+        <div class="service-num">04</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="14,17 8,22 14,27"/>
+            <polyline points="30,17 36,22 30,27"/>
+            <line x1="19" y1="30" x2="25" y2="14"/>
+          </svg>
+        </div>
+        <div class="service-name" data-en="Development" data-ar="التطوير">Development</div>
+        <div class="service-name-ar" data-en="برمجة وتطوير" data-ar="Development">برمجة وتطوير</div>
+        <p class="service-desc" data-en="Web and mobile applications, custom software, API integrations, UI/UX design, and e-commerce solutions." data-ar="تطبيقات الويب والجوال والبرامج المخصصة وتكاملات API وتصميم UI/UX وحلول التجارة الإلكترونية.">Web and mobile applications, custom software, API integrations, UI/UX design, and e-commerce solutions.</p>
+        <div class="service-tags">
+          <span class="stag">Web</span>
+          <span class="stag">Mobile</span>
+          <span class="stag">UX</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label" data-en="02 — About Madar" data-ar="02 — عن مدار">02 — About Madar</div>
+    <div class="about-grid">
+      <div class="about-left fade-up">
+        <blockquote class="big-quote" data-en='We don\'t just build brands.<br>We put them <em>in orbit.</em>' data-ar='نحن لا نبني العلامات فقط.<br>نضعها <em>في المدار.</em>'>
+          We don't just build brands.<br>We put them <em>in orbit.</em>
+        </blockquote>
+        <div class="about-line" style="margin-top:40px">
+          <div class="about-fact">
+            <div class="about-fact-label" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
+            <div class="about-fact-value">GCC Region</div>
+          </div>
+          <div class="about-fact">
+            <div class="about-fact-label" data-en="Languages" data-ar="اللغات">Languages</div>
+            <div class="about-fact-value">AR · EN</div>
+          </div>
+          <div class="about-fact">
+            <div class="about-fact-label" data-en="Founded" data-ar="تأسست">Founded</div>
+            <div class="about-fact-value">2024</div>
+          </div>
+          <div class="about-fact">
+            <div class="about-fact-label" data-en="Sector" data-ar="القطاع">Sector</div>
+            <div class="about-fact-value">Digital</div>
+          </div>
+        </div>
+      </div>
+      <div class="about-right fade-up" style="transition-delay:.15s">
+        <p data-en="Madar is a full-service digital agency built for the Gulf market. We understand the region's nuance — the culture, the language, the ambition — and we translate that into work that resonates." data-ar="مدار هي وكالة رقمية متكاملة مبنية لسوق الخليج. نحن نفهم تفاصيل المنطقة — الثقافة واللغة والطموح — ونترجم ذلك إلى عمل يتردد صداه.">
+          Madar is a full-service digital agency built for the Gulf market. We understand the region's nuance — the culture, the language, the ambition — and we translate that into work that resonates.
+        </p>
+        <p data-en="From Riyadh to Dubai to Doha, our clients trust us to deliver not just a service — but a strategic orbit around their core vision, keeping them relevant, visible, and growing." data-ar="من الرياض إلى دبي إلى الدوحة، يثق عملاؤنا بنا لتقديم ليس مجرد خدمة — بل مسار استراتيجي حول رؤيتهم الجوهرية، يجعلهم دائمي الصلة والظهور والنمو.">
+          From Riyadh to Dubai to Doha, our clients trust us to deliver not just a service — but a strategic orbit around their core vision, keeping them relevant, visible, and growing.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-inner">
+    <div class="section-label" data-en="03 — Selected Work" data-ar="03 — أعمال مختارة">03 — Selected Work</div>
+
+    <div class="portfolio-header">
+      <h2 class="portfolio-title fade-up" data-en="OUR WORK" data-ar="أعمالنا">OUR WORK</h2>
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-filter="all" data-en="All" data-ar="الكل">All</button>
+        <button class="filter-tab" data-filter="marketing" data-en="Marketing" data-ar="تسويق">Marketing</button>
+        <button class="filter-tab" data-filter="dev" data-en="Dev" data-ar="تطوير">Dev</button>
+        <button class="filter-tab" data-filter="social" data-en="Social" data-ar="سوشيال">Social</button>
+      </div>
+    </div>
+
+    <div class="projects-grid" id="projects-grid">
+      <!-- Project 1 -->
+      <div class="project-card" data-category="dev">
+        <div class="project-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #0F0F12, #1A1508)"></div>
+          <span class="thumb-letter" style="color:#2a2408">AL</span>
+        </div>
+        <div class="project-overlay">
+          <span class="project-cat" data-en="Development" data-ar="تطوير">Development</span>
+          <div class="project-name" data-en="Al Faris Platform" data-ar="منصة الفارس">Al Faris Platform</div>
+          <p class="project-brief" data-en="Custom web platform with Arabic-first UX for a UAE logistics company." data-ar="منصة ويب مخصصة مع تجربة مستخدم عربية أولى لشركة لوجستية في الإمارات.">Custom web platform with Arabic-first UX for a UAE logistics company.</p>
+          <div class="project-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-card" data-category="marketing">
+        <div class="project-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #100A0A, #1A0D08)"></div>
+          <span class="thumb-letter" style="color:#2a1408">NB</span>
+        </div>
+        <div class="project-overlay">
+          <span class="project-cat" data-en="Marketing" data-ar="تسويق">Marketing</span>
+          <div class="project-name" data-en="Nakheel Branding" data-ar="هوية نخيل">Nakheel Branding</div>
+          <p class="project-brief" data-en="Full brand identity and launch campaign for a Saudi F&B concept." data-ar="هوية علامة تجارية كاملة وحملة إطلاق لمفهوم مطاعم سعودي.">Full brand identity and launch campaign for a Saudi F&B concept.</p>
+          <div class="project-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="project-card" data-category="social">
+        <div class="project-thumb">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #080D10, #081018)"></div>
+          <span class="thumb-letter" style="color:#081828">QS</span>
+        </div>
+        <div class="project-overlay">
+          <span class="project-cat" data-en="Social Media" data-ar="سوشيال ميديا">Social Media</span>
+          <div class="project-name" data-en="Qatar Sports Club" data-ar="نادي قطر الرياضي">Qatar Sports Club</div>
+          <p class="project-brief" data-en="Social media strategy, content calendar, and influencer campaign management." data-ar="استراتيجية السوشيال ميديا وتقويم المحتوى وإدارة حملات المؤثرين.">Social media strategy, content calendar, and influencer campaign management.</p>
+          <div class="project-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- Add Project Card -->
+      <div class="project-card add-card" onclick="alert('Admin panel coming soon — add your projects here.')">
+        <div class="add-icon">+</div>
+        <span class="add-label" data-en="Add Project" data-ar="أضف مشروعاً">Add Project</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label" data-en="04 — Get In Touch" data-ar="04 — تواصل معنا">04 — Get In Touch</div>
+
+    <div class="contact-grid">
+      <div class="contact-left fade-up">
+        <h2 class="contact-headline" data-en="LET'S<br><em>ORBIT<br>TOGETHER</em>" data-ar="لنعمل<br><em>معاً<br>في مدار</em>">LET'S<br><em>ORBIT<br>TOGETHER</em></h2>
+
+        <div class="contact-info">
+          <div class="contact-row">
+            <div class="contact-row-icon">✉</div>
+            <div>
+              <div class="contact-row-label" data-en="Email" data-ar="البريد الإلكتروني">Email</div>
+              <div class="contact-row-value">hello@madar.agency</div>
+            </div>
+          </div>
+          <div class="contact-row">
+            <div class="contact-row-icon">☎</div>
+            <div>
+              <div class="contact-row-label" data-en="Phone / WhatsApp" data-ar="هاتف / واتساب">Phone / WhatsApp</div>
+              <div class="contact-row-value">+966 XX XXX XXXX</div>
+            </div>
+          </div>
+          <div class="contact-row">
+            <div class="contact-row-icon">◎</div>
+            <div>
+              <div class="contact-row-label" data-en="Serving" data-ar="نخدم">Serving</div>
+              <div class="contact-row-value">KSA · UAE · QAT · KWT · BHR · OMN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-right fade-up" style="transition-delay:.15s">
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-field">
+              <label data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+              <input type="text" placeholder="Ahmed Al-Rashidi">
+            </div>
+            <div class="form-field">
+              <label data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+              <input type="email" placeholder="ahmed@company.com">
+            </div>
+          </div>
+          <div class="form-field">
+            <label data-en="Service Needed" data-ar="الخدمة المطلوبة">Service Needed</label>
+            <select>
+              <option data-en="Select a service..." data-ar="اختر خدمة...">Select a service...</option>
+              <option data-en="Marketing" data-ar="التسويق">Marketing</option>
+              <option data-en="IT Services" data-ar="خدمات IT">IT Services</option>
+              <option data-en="Social Media Management" data-ar="إدارة السوشيال ميديا">Social Media Management</option>
+              <option data-en="Programming & Development" data-ar="البرمجة والتطوير">Programming & Development</option>
+              <option data-en="Multiple Services" data-ar="خدمات متعددة">Multiple Services</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label data-en="Tell us about your project" data-ar="أخبرنا عن مشروعك">Tell us about your project</label>
+            <textarea placeholder="Brief description of what you need..."></textarea>
+          </div>
+          <button type="submit" class="form-submit" data-en="Send Message →" data-ar="أرسل الرسالة →">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <span class="accent">◎</span> Madar <span style="color:var(--text-dim);font-weight:300">مدار</span>
+  </div>
+  <p class="footer-copy" data-en="© 2025 Madar Digital Agency. All rights reserved." data-ar="© 2025 وكالة مدار الرقمية. جميع الحقوق محفوظة.">© 2025 Madar Digital Agency. All rights reserved.</p>
+  <ul class="footer-links">
+    <li><a href="#services" data-en="Services" data-ar="الخدمات">Services</a></li>
+    <li><a href="#portfolio" data-en="Work" data-ar="أعمالنا">Work</a></li>
+    <li><a href="#contact" data-en="Contact" data-ar="تواصل">Contact</a></li>
+  </ul>
+</footer>
+
+<script>
+// ── LANGUAGE TOGGLE ──
+const translations = {
+  en: { dir: 'ltr', lang: 'en' },
+  ar: { dir: 'rtl', lang: 'ar' }
+};
+let currentLang = 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  const html = document.documentElement;
+  html.dir = translations[lang].dir;
+  html.lang = translations[lang].lang;
+
+  // Toggle active button
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === (lang === 'en' ? 'en' : 'ع'));
+  });
+
+  // Swap all data-en / data-ar content
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const val = el.getAttribute('data-' + lang);
+    if (!val) return;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      // don't swap inputs
+    } else if (el.tagName === 'OPTION') {
+      el.textContent = val;
+    } else if (val.includes('<br>') || val.includes('<em>')) {
+      el.innerHTML = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+
+  // Update hero name display
+  const arabicName = document.querySelector('.arabic-name');
+  if (lang === 'ar') {
+    arabicName.textContent = 'MADAR';
+    arabicName.style.fontFamily = "'Barlow Condensed', sans-serif";
+    arabicName.style.fontSize = 'clamp(40px, 5.5vw, 76px)';
+    arabicName.style.fontWeight = '300';
+    arabicName.style.color = 'var(--text-dim)';
+  } else {
+    arabicName.textContent = 'مدار';
+    arabicName.style.fontFamily = "'Cairo', sans-serif";
+    arabicName.style.fontSize = '';
+    arabicName.style.fontWeight = '';
+  }
+}
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── INTERSECTION OBSERVER (fade-up) ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ── PORTFOLIO FILTER ──
+document.getElementById('filter-tabs').addEventListener('click', e => {
+  if (!e.target.classList.contains('filter-tab')) return;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  const filter = e.target.dataset.filter;
+  document.querySelectorAll('.project-card:not(.add-card)').forEach(card => {
+    const match = filter === 'all' || card.dataset.category === filter;
+    card.style.display = match ? '' : 'none';
+  });
+});
+
+// ── FORM SUBMIT ──
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  const original = btn.textContent;
+  btn.textContent = currentLang === 'ar' ? 'تم الإرسال ✓' : 'Sent ✓';
+  btn.style.background = '#2a7a4e';
+  btn.style.color = '#fff';
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.style.background = '';
+    btn.style.color = '';
+    e.target.reset();
+  }, 3000);
+}
+</script>
+
+</body>
+</html>
